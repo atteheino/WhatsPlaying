@@ -60,31 +60,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             if(isChecked){
-                IntentFilter iF = new IntentFilter();
-                iF.addAction("com.android.music.metachanged");
-                iF.addAction("com.android.music.playstatechanged");
-                iF.addAction("com.android.music.playbackcomplete");
-                iF.addAction("com.android.music.queuechanged");
-                iF.addAction("com.htc.music.metachanged");
-                iF.addAction("fm.last.android.metachanged");
-                iF.addAction("com.sec.android.app.music.metachanged");
-                iF.addAction("com.nullsoft.winamp.metachanged");
-                iF.addAction("com.amazon.mp3.metachanged");
-                iF.addAction("com.miui.player.metachanged");
-                iF.addAction("com.real.IMP.metachanged");
-                iF.addAction("com.sonyericsson.music.metachanged");
-                iF.addAction("com.rdio.android.metachanged");
-                iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
-                iF.addAction("com.andrew.apollo.metachanged");
-                iF.addAction("com.spotify.mobile.android.metadatachanged");
-
-                registerReceiver(mReceiver, iF);
+                registerIntentListener();
             } else {
                 unregisterReceiver(mReceiver);
                 setDefaultsForUI();
             }
         }
     };
+
+    private void registerIntentListener() {
+        IntentFilter iF = new IntentFilter();
+        iF.addAction("com.android.music.metachanged");
+//        iF.addAction("com.android.music.playstatechanged");
+//        iF.addAction("com.android.music.playbackcomplete");
+//        iF.addAction("com.android.music.queuechanged");
+        iF.addAction("com.htc.music.metachanged");
+        iF.addAction("fm.last.android.metachanged");
+        iF.addAction("com.sec.android.app.music.metachanged");
+        iF.addAction("com.nullsoft.winamp.metachanged");
+        iF.addAction("com.amazon.mp3.metachanged");
+        iF.addAction("com.miui.player.metachanged");
+        iF.addAction("com.real.IMP.metachanged");
+        iF.addAction("com.sonyericsson.music.metachanged");
+        iF.addAction("com.rdio.android.metachanged");
+        iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
+        iF.addAction("com.andrew.apollo.metachanged");
+        iF.addAction("com.spotify.music.metadatachanged");
+
+
+        registerReceiver(mReceiver, iF);
+    }
 
     private void setDefaultsForUI() {
         mTrack.setText("TRACK");
@@ -112,10 +117,22 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
 
-
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if(mIsActive.isChecked()){
+            unregisterReceiver(mReceiver);
+        }
 
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(mIsActive.isChecked()){
+            registerIntentListener();
+        }
+    }
 }

@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import java.util.Locale;
@@ -18,6 +20,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final static long PAUSE_TIME = 500;
     private TextToSpeech mTextToSpeech;
+    private Switch mIsActive;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -30,11 +33,13 @@ public class MainActivity extends AppCompatActivity {
             String album = intent.getStringExtra("album");
             String track = intent.getStringExtra("track");
             Log.v("tag", artist + ":" + album + ":" + track);
+
             TextView currentTrack = (TextView) findViewById(R.id.info);
             currentTrack.setText(artist + ":" + album + ":" + track);
+
             String artistSpeak = artist;
-            String albumSpeak = " from album " + album;
-            String trackSpeak = " track " + track;
+            String albumSpeak = "from album " + album;
+            String trackSpeak = "track " + track;
             if(artist != null) {
                 mTextToSpeech.speak(artistSpeak, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());
                 mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
@@ -44,11 +49,42 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    CompoundButton.OnCheckedChangeListener mOnCheckedIsActiveListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            if(isChecked){
+                IntentFilter iF = new IntentFilter();
+                iF.addAction("com.android.music.metachanged");
+                iF.addAction("com.android.music.playstatechanged");
+                iF.addAction("com.android.music.playbackcomplete");
+                iF.addAction("com.android.music.queuechanged");
+                iF.addAction("com.htc.music.metachanged");
+                iF.addAction("fm.last.android.metachanged");
+                iF.addAction("com.sec.android.app.music.metachanged");
+                iF.addAction("com.nullsoft.winamp.metachanged");
+                iF.addAction("com.amazon.mp3.metachanged");
+                iF.addAction("com.miui.player.metachanged");
+                iF.addAction("com.real.IMP.metachanged");
+                iF.addAction("com.sonyericsson.music.metachanged");
+                iF.addAction("com.rdio.android.metachanged");
+                iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
+                iF.addAction("com.andrew.apollo.metachanged");
+                iF.addAction("com.spotify.mobile.android.metadatachanged");
+
+                registerReceiver(mReceiver, iF);
+            } else {
+                unregisterReceiver(mReceiver);
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mIsActive = (Switch) findViewById(R.id.isActive);
+        mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
 
         mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
@@ -67,28 +103,9 @@ public class MainActivity extends AppCompatActivity {
             playbacOn.setText("OFF");
         }
 
-        IntentFilter iF = new IntentFilter();
-        iF.addAction("com.android.music.metachanged");
-        iF.addAction("com.android.music.playstatechanged");
-        iF.addAction("com.android.music.playbackcomplete");
-        iF.addAction("com.android.music.queuechanged");
-        iF.addAction("com.htc.music.metachanged");
-        iF.addAction("fm.last.android.metachanged");
-        iF.addAction("com.sec.android.app.music.metachanged");
-        iF.addAction("com.nullsoft.winamp.metachanged");
-        iF.addAction("com.amazon.mp3.metachanged");
-        iF.addAction("com.miui.player.metachanged");
-        iF.addAction("com.real.IMP.metachanged");
-        iF.addAction("com.sonyericsson.music.metachanged");
-        iF.addAction("com.rdio.android.metachanged");
-        iF.addAction("com.samsung.sec.android.MusicPlayer.metachanged");
-        iF.addAction("com.andrew.apollo.metachanged");
-        iF.addAction("com.spotify.mobile.android.metadatachanged");
 
-        registerReceiver(mReceiver, iF);
 
     }
-
 
 
 }

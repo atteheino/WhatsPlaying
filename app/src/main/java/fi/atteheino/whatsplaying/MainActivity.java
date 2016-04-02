@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.media.AudioManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
@@ -21,8 +20,14 @@ public class MainActivity extends AppCompatActivity {
     private final static long PAUSE_TIME = 500;
     private TextToSpeech mTextToSpeech;
     private Switch mIsActive;
+    private TextView mArtist;
+    private TextView mAlbum;
+    private TextView mTrack;
+
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
+
+
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -34,8 +39,10 @@ public class MainActivity extends AppCompatActivity {
             String track = intent.getStringExtra("track");
             Log.v("tag", artist + ":" + album + ":" + track);
 
-            TextView currentTrack = (TextView) findViewById(R.id.info);
-            currentTrack.setText(artist + ":" + album + ":" + track);
+
+            mArtist.setText("ARTIST\n" + artist);
+            mAlbum.setText("ALBUM\n" + album);
+            mTrack.setText("TRACK\n"+track);
 
             String artistSpeak = artist;
             String albumSpeak = "from album " + album;
@@ -83,6 +90,10 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mArtist = (TextView) findViewById(R.id.artist);
+        mAlbum = (TextView) findViewById(R.id.album);
+        mTrack = (TextView) findViewById(R.id.track);
+
         mIsActive = (Switch) findViewById(R.id.isActive);
         mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
 
@@ -94,14 +105,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
-        TextView playbacOn = (TextView) findViewById(R.id.playbackOn);
-        AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);
-        if (manager.isMusicActive()) {
-            playbacOn.setText("PLAYING!");
-        } else {
-            playbacOn.setText("OFF");
-        }
 
 
 

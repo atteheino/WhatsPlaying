@@ -10,20 +10,34 @@
     tools:context="fi.atteheino.whatsplaying.MainActivity">
 
     <TextView
-        android:id="@+id/info"
+        android:id="@+id/artist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:text="Song name" />
+        android:background="@drawable/background_box"
+        android:elevation="2dp"
+        android:text="ARTIST"
+        android:textAppearance="?android:attr/textAppearanceLarge"/>
 
     <TextView
-        android:id="@+id/playbackOn"
+        android:id="@+id/album"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="OFF"
+        android:layout_below="@+id/artist"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/background_box"
+        android:elevation="5dp"
+        android:text="ALBUM"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/track"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/album"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/background_box"
+        android:elevation="2dp"
+        android:text="TRACK"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <Switch
@@ -35,4 +49,5 @@
         android:checked="false"
         android:enabled="true"
         android:text="Speak out loud?" />
+
 </RelativeLayout>

@@ -6,12 +6,18 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.TextView;
 
+import java.util.Locale;
+import java.util.UUID;
+
 public class MainActivity extends AppCompatActivity {
 
+    private final static long PAUSE_TIME = 500;
+    private TextToSpeech mTextToSpeech;
 
     private BroadcastReceiver mReceiver = new BroadcastReceiver() {
 
@@ -26,6 +32,16 @@ public class MainActivity extends AppCompatActivity {
             Log.v("tag", artist + ":" + album + ":" + track);
             TextView currentTrack = (TextView) findViewById(R.id.info);
             currentTrack.setText(artist + ":" + album + ":" + track);
+            String artistSpeak = artist;
+            String albumSpeak = " from album " + album;
+            String trackSpeak = " track " + track;
+            if(artist != null) {
+                mTextToSpeech.speak(artistSpeak, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());
+                mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
+                mTextToSpeech.speak(albumSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
+                mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
+                mTextToSpeech.speak(trackSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
+            }
         }
     };
 
@@ -33,6 +49,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    mTextToSpeech.setLanguage(Locale.UK);
+                }
+            }
+        });
 
         TextView playbacOn = (TextView) findViewById(R.id.playbackOn);
         AudioManager manager = (AudioManager) this.getSystemService(Context.AUDIO_SERVICE);

@@ -81,9 +81,16 @@ public class MainActivity extends AppCompatActivity {
                 registerReceiver(mReceiver, iF);
             } else {
                 unregisterReceiver(mReceiver);
+                setDefaultsForUI();
             }
         }
     };
+
+    private void setDefaultsForUI() {
+        mTrack.setText("TRACK");
+        mAlbum.setText("ALBUM");
+        mArtist.setText("ARTIST");
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

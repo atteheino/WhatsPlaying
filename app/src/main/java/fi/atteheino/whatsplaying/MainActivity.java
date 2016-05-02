@@ -11,6 +11,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import fi.atteheino.whatsplaying.constants.Constants;
+import fi.atteheino.whatsplaying.service.WhatsPlayingService;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -62,6 +63,10 @@ public class MainActivity extends AppCompatActivity {
 
         mIsActive = (Switch) findViewById(R.id.isActive);
         mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
+
+        Intent intent = new Intent(this, WhatsPlayingService.class);
+        startService(intent);
+        Log.i("tag", "Starting the service...");
 
     }
 

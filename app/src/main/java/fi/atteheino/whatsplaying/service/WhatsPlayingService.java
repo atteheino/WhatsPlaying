@@ -1,6 +1,9 @@
 package fi.atteheino.whatsplaying.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
@@ -11,6 +14,7 @@ import java.util.Locale;
 
 import fi.atteheino.whatsplaying.MyMessengerBroadcastReceiver;
 import fi.atteheino.whatsplaying.MySongBroadcastReceiver;
+import fi.atteheino.whatsplaying.R;
 import fi.atteheino.whatsplaying.constants.Constants;
 
 public class WhatsPlayingService extends Service {
@@ -69,7 +73,7 @@ public class WhatsPlayingService extends Service {
                 }
             }
         });
-        mReceiver = new MySongBroadcastReceiver(mTextToSpeech);
+        mReceiver = new MySongBroadcastReceiver(this, mTextToSpeech);
         registerMyMusicBroadcastReceiver();
         mMessengerReceiver = new MyMessengerBroadcastReceiver(this);
         registerMessengerIntentReceiver();
@@ -81,5 +85,16 @@ public class WhatsPlayingService extends Service {
         unregisterReceivers();
     }
 
+    public void sendNotification(String infoText){
+        Notification notification = new Notification.Builder(this)
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
+                .setSmallIcon(R.drawable.ic_notification)
+                .setContentTitle(getString(R.string.notification_header))
+                .setContentText(infoText)
+                .build();
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
+    }
 
 }

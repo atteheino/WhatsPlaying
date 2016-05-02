@@ -8,14 +8,18 @@ import android.util.Log;
 
 import java.util.UUID;
 
+import fi.atteheino.whatsplaying.service.WhatsPlayingService;
+
 public class MySongBroadcastReceiver extends BroadcastReceiver {
     private final static long PAUSE_TIME = 500;
     private TextToSpeech mTextToSpeech;
+    private WhatsPlayingService mService;
 
     public MySongBroadcastReceiver() {
     }
-    public MySongBroadcastReceiver(TextToSpeech textToSpeech){
-        mTextToSpeech = textToSpeech;
+    public MySongBroadcastReceiver(WhatsPlayingService whatsPlayingService, TextToSpeech textToSpeech){
+        this.mTextToSpeech = textToSpeech;
+        this.mService = whatsPlayingService;
     }
 
     @Override
@@ -40,6 +44,7 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
             mTextToSpeech.speak(trackSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
         }
 
+        mService.sendNotification(artist + " " + artistSpeak + " " + trackSpeak);
     }
 
 }

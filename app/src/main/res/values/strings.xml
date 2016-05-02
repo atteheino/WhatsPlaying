@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WhatsPlaying</string>
+    <string name="notification_header">WhatsPlaying</string>
 </resources>

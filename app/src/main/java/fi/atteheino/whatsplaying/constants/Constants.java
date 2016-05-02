@@ -7,4 +7,5 @@ public class Constants {
 
     public static final String START_LISTENING_BROADCASTS = "fi.atteheino.start_listening";
     public static final String STOP_LISTENING_BROADCASTS = "fi.atteheino.stop_listening";
+    public static final int NOTIFICATION_ID = 999;
 }

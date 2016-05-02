@@ -6,6 +6,7 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.content.LocalBroadcastManager;
@@ -65,6 +66,8 @@ public class WhatsPlayingService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+
         mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -74,7 +77,9 @@ public class WhatsPlayingService extends Service {
             }
         });
         mReceiver = new MySongBroadcastReceiver(this, mTextToSpeech);
-        registerMyMusicBroadcastReceiver();
+        if(settings.getBoolean(Constants.LISTENING_ACTIVE, false)){
+            registerMyMusicBroadcastReceiver();
+        }
         mMessengerReceiver = new MyMessengerBroadcastReceiver(this);
         registerMessengerIntentReceiver();
     }

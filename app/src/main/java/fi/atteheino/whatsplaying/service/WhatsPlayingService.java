@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 import java.util.Locale;
 
@@ -49,6 +50,7 @@ public class WhatsPlayingService extends Service {
 
 
         registerReceiver(mReceiver, iF);
+        Log.i("tag", "MyMusicBroadcastReceiver registered");
     }
 
     private void registerMessengerIntentReceiver(){
@@ -56,11 +58,13 @@ public class WhatsPlayingService extends Service {
         intentFilter.addAction(Constants.START_LISTENING_BROADCASTS);
         intentFilter.addAction(Constants.STOP_LISTENING_BROADCASTS);
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessengerReceiver, intentFilter);
+        Log.i("tag", "Messenger Intent Receiver registered");
     }
 
     public void unregisterReceivers(){
         unregisterReceiver(mReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessengerReceiver);
+        Log.i("tag", "BroadcastReceivers unregistered");
     }
 
     @Override
@@ -68,6 +72,7 @@ public class WhatsPlayingService extends Service {
         super.onCreate();
         SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
 
+        Log.i("tag", "Starting WhatsPlayingService");
         mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -100,6 +105,7 @@ public class WhatsPlayingService extends Service {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
+        Log.i("tag", "Notification sent: " + infoText);
     }
 
 }

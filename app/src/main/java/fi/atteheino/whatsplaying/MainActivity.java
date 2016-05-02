@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -40,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private void createAndSendBroadcast(String intentAction) {
         Intent intent = new Intent(intentAction);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+        Log.i("tag", "Intent broadcasted: " + intentAction);
     }
 
 

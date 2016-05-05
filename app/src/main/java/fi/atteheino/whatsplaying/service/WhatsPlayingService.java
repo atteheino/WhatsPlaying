@@ -2,6 +2,7 @@ package fi.atteheino.whatsplaying.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -14,12 +15,14 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import fi.atteheino.whatsplaying.MainActivity;
 import fi.atteheino.whatsplaying.MyMessengerBroadcastReceiver;
 import fi.atteheino.whatsplaying.MySongBroadcastReceiver;
 import fi.atteheino.whatsplaying.R;
 import fi.atteheino.whatsplaying.constants.Constants;
 
 public class WhatsPlayingService extends Service {
+    private final static String TAG = "WhatsPlayingService";
     private TextToSpeech mTextToSpeech;
     private MySongBroadcastReceiver mReceiver;
     private MyMessengerBroadcastReceiver mMessengerReceiver;
@@ -50,7 +53,7 @@ public class WhatsPlayingService extends Service {
 
 
         registerReceiver(mReceiver, iF);
-        Log.i("tag", "MyMusicBroadcastReceiver registered");
+        Log.i(TAG, "MyMusicBroadcastReceiver registered");
     }
 
     private void registerMessengerIntentReceiver(){
@@ -58,13 +61,26 @@ public class WhatsPlayingService extends Service {
         intentFilter.addAction(Constants.START_LISTENING_BROADCASTS);
         intentFilter.addAction(Constants.STOP_LISTENING_BROADCASTS);
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessengerReceiver, intentFilter);
-        Log.i("tag", "Messenger Intent Receiver registered");
+        Log.i(TAG, "Messenger Intent Receiver registered");
     }
 
-    public void unregisterReceivers(){
+    public void unregisterSongBroadcastReceiver() {
+        unregisterReceiver(mReceiver);
+        Log.i(TAG, "SongBroadcastReceiver unregistered");
+    }
+    private void unregisterReceivers(){
         unregisterReceiver(mReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessengerReceiver);
-        Log.i("tag", "BroadcastReceivers unregistered");
+        Log.i(TAG, "BroadcastReceivers unregistered");
+    }
+
+    public void closeService(){
+        Log.i(TAG, "Closing Service");
+        //NotificationManager Close here
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.cancel(Constants.NOTIFICATION_ID);
+        stopSelf();
     }
 
     @Override
@@ -72,7 +88,7 @@ public class WhatsPlayingService extends Service {
         super.onCreate();
         SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
 
-        Log.i("tag", "Starting WhatsPlayingService");
+        Log.i(TAG, "Starting WhatsPlayingService");
         mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -96,16 +112,30 @@ public class WhatsPlayingService extends Service {
     }
 
     public void sendNotification(String infoText){
+        Intent homeIntent = new Intent(this, MainActivity.class);
+        PendingIntent pendingHomeIntent = PendingIntent.getActivity(this, 0, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent closeIntent = new Intent(Constants.CLOSE_SERVICE);
+        PendingIntent pendingCloseIntent = PendingIntent.getBroadcast(this, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification.Action closeServiceAction = new Notification.Action.Builder(
+                R.drawable.ic_close,
+                getString(R.string.notification_close),
+                pendingCloseIntent)
+                .build();
+
+
         Notification notification = new Notification.Builder(this)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(getString(R.string.notification_header))
                 .setContentText(infoText)
+                .setContentIntent(pendingHomeIntent)
+                .addAction(closeServiceAction)
                 .build();
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(Constants.NOTIFICATION_ID, notification);
-        Log.i("tag", "Notification sent: " + infoText);
+        Log.i(TAG, "Notification sent: " + infoText);
     }
 
 }

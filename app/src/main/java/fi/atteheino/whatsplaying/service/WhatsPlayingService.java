@@ -16,6 +16,7 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import fi.atteheino.whatsplaying.CloseServiceHelperBroadcastReceiver;
 import fi.atteheino.whatsplaying.MainActivity;
 import fi.atteheino.whatsplaying.MySongBroadcastReceiver;
 import fi.atteheino.whatsplaying.R;
@@ -146,8 +147,8 @@ public class WhatsPlayingService extends Service {
         Intent homeIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingHomeIntent = PendingIntent.getActivity(this, 0, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        Intent closeIntent = new Intent(Constants.CLOSE_SERVICE);
-        closeIntent.setClass(this, WhatsPlayingService.class);
+        Intent closeIntent = new Intent(Constants.CLOSE_SERVICE_REQ);
+        closeIntent.setClass(this, CloseServiceHelperBroadcastReceiver.class);
         PendingIntent pendingCloseIntent = PendingIntent.getBroadcast(this, 0, closeIntent, 0);
         Notification.Action closeServiceAction = new Notification.Action.Builder(
                 R.drawable.ic_close,

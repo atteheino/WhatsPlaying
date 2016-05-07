@@ -11,6 +11,7 @@ import java.util.UUID;
 import fi.atteheino.whatsplaying.service.WhatsPlayingService;
 
 public class MySongBroadcastReceiver extends BroadcastReceiver {
+    private final static String TAG = "MySongBroadcastReceiver";
     private final static long PAUSE_TIME = 500;
     private TextToSpeech mTextToSpeech;
     private WhatsPlayingService mService;
@@ -27,11 +28,11 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
         String cmd = intent.getStringExtra("command");
-        Log.v("tag ", action + " / " + cmd);
+        Log.v(TAG, action + " / " + cmd);
         String artist = intent.getStringExtra("artist");
         String album = intent.getStringExtra("album");
         String track = intent.getStringExtra("track");
-        Log.v("tag", artist + ":" + album + ":" + track);
+        Log.v(TAG, artist + ":" + album + ":" + track);
 
         String artistSpeak = artist;
         String albumSpeak = "from album " + album;

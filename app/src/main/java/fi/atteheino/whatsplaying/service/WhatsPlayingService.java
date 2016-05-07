@@ -4,6 +4,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,7 +17,6 @@ import android.util.Log;
 import java.util.Locale;
 
 import fi.atteheino.whatsplaying.MainActivity;
-import fi.atteheino.whatsplaying.MyMessengerBroadcastReceiver;
 import fi.atteheino.whatsplaying.MySongBroadcastReceiver;
 import fi.atteheino.whatsplaying.R;
 import fi.atteheino.whatsplaying.constants.Constants;
@@ -25,7 +25,25 @@ public class WhatsPlayingService extends Service {
     private final static String TAG = "WhatsPlayingService";
     private TextToSpeech mTextToSpeech;
     private MySongBroadcastReceiver mReceiver;
-    private MyMessengerBroadcastReceiver mMessengerReceiver;
+    private BroadcastReceiver mMessengerReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.i(TAG, "Received Broadcast Message: " + intent.toString());
+
+            if (intent.filterEquals(new Intent(Constants.START_LISTENING_BROADCASTS))) {
+                registerMyMusicBroadcastReceiver();
+            }
+            if (intent.filterEquals(new Intent(Constants.STOP_LISTENING_BROADCASTS)) && mReceiver!=null) {
+                unregisterSongBroadcastReceiver();
+            }
+            if (intent.getAction().equals(Constants.CLOSE_SERVICE)) {
+                closeService();
+            }
+
+        }
+    };
+
     public WhatsPlayingService() {
     }
 
@@ -56,31 +74,42 @@ public class WhatsPlayingService extends Service {
         Log.i(TAG, "MyMusicBroadcastReceiver registered");
     }
 
-    private void registerMessengerIntentReceiver(){
+    private void registerMessengerIntentReceiver() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.START_LISTENING_BROADCASTS);
         intentFilter.addAction(Constants.STOP_LISTENING_BROADCASTS);
+        intentFilter.addAction(Constants.CLOSE_SERVICE);
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessengerReceiver, intentFilter);
         Log.i(TAG, "Messenger Intent Receiver registered");
     }
 
     public void unregisterSongBroadcastReceiver() {
-        unregisterReceiver(mReceiver);
-        Log.i(TAG, "SongBroadcastReceiver unregistered");
+        if(mReceiver != null) {
+            unregisterReceiver(mReceiver);
+            Log.i(TAG, "SongBroadcastReceiver unregistered");
+            cancelNotification();
+            Log.i(TAG, "Notification Cancelled");
+        }
     }
-    private void unregisterReceivers(){
-        unregisterReceiver(mReceiver);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessengerReceiver);
+
+    private void unregisterReceivers() {
+        if(mReceiver != null)
+            unregisterReceiver(mReceiver);
+        if(mMessengerReceiver!=null)
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessengerReceiver);
         Log.i(TAG, "BroadcastReceivers unregistered");
     }
 
-    public void closeService(){
+    public void closeService() {
         Log.i(TAG, "Closing Service");
-        //NotificationManager Close here
+        cancelNotification();
+        stopSelf();
+    }
+
+    private void cancelNotification() {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(Constants.NOTIFICATION_ID);
-        stopSelf();
     }
 
     @Override
@@ -92,16 +121,16 @@ public class WhatsPlayingService extends Service {
         mTextToSpeech = new TextToSpeech(this, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
-                if(status != TextToSpeech.ERROR) {
+                if (status != TextToSpeech.ERROR) {
                     mTextToSpeech.setLanguage(Locale.UK);
                 }
             }
         });
         mReceiver = new MySongBroadcastReceiver(this, mTextToSpeech);
-        if(settings.getBoolean(Constants.LISTENING_ACTIVE, false)){
+        if (settings.getBoolean(Constants.LISTENING_ACTIVE, false)) {
             registerMyMusicBroadcastReceiver();
         }
-        mMessengerReceiver = new MyMessengerBroadcastReceiver(this);
+
         registerMessengerIntentReceiver();
     }
 
@@ -109,14 +138,17 @@ public class WhatsPlayingService extends Service {
     public void onDestroy() {
         super.onDestroy();
         unregisterReceivers();
+        cancelNotification();
+        mTextToSpeech.shutdown();
     }
 
-    public void sendNotification(String infoText){
+    public void sendNotification(String infoText) {
         Intent homeIntent = new Intent(this, MainActivity.class);
         PendingIntent pendingHomeIntent = PendingIntent.getActivity(this, 0, homeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent closeIntent = new Intent(Constants.CLOSE_SERVICE);
-        PendingIntent pendingCloseIntent = PendingIntent.getBroadcast(this, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        closeIntent.setClass(this, WhatsPlayingService.class);
+        PendingIntent pendingCloseIntent = PendingIntent.getBroadcast(this, 0, closeIntent, 0);
         Notification.Action closeServiceAction = new Notification.Action.Builder(
                 R.drawable.ic_close,
                 getString(R.string.notification_close),

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -15,19 +17,20 @@ import fi.atteheino.whatsplaying.service.WhatsPlayingService;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    private final static String TAG = "MainActivity";
     private Switch mIsActive;
     private TextView mArtist;
     private TextView mAlbum;
     private TextView mTrack;
-
-
         CompoundButton.OnCheckedChangeListener mOnCheckedIsActiveListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
             SharedPreferences.Editor editor = settings.edit();
             if(isChecked){
+                Intent intent = new Intent(getApplicationContext(), WhatsPlayingService.class);
+                startService(intent);
+                Log.i(TAG, "Starting Service");
                 editor.putBoolean(Constants.LISTENING_ACTIVE, true);
                 createAndSendBroadcast(Constants.START_LISTENING_BROADCASTS);
             } else {
@@ -38,11 +41,26 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
     };
+    Button.OnClickListener mCloseButtonOnClickListener = new Button.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            mIsActive.setOnCheckedChangeListener(null);
+            mIsActive.setChecked(false);
+            mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
+            SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(Constants.LISTENING_ACTIVE, false);
+
+            setDefaultsForUI();
+            createAndSendBroadcast(Constants.CLOSE_SERVICE);
+        }
+    };
+    private Button mCloseButton;
 
     private void createAndSendBroadcast(String intentAction) {
         Intent intent = new Intent(intentAction);
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-        Log.i("tag", "Intent broadcasted: " + intentAction);
+        Log.i(TAG, "Intent broadcasted: " + intentAction);
     }
 
 
@@ -64,10 +82,22 @@ public class MainActivity extends AppCompatActivity {
         mIsActive = (Switch) findViewById(R.id.isActive);
         mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
 
+        mCloseButton = (Button) findViewById(R.id.stopButton);
+        mCloseButton.setOnClickListener(mCloseButtonOnClickListener);
+
         Intent intent = new Intent(this, WhatsPlayingService.class);
         startService(intent);
-        Log.i("tag", "Starting the service...");
+        Log.i(TAG, "Starting the service...");
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+        if(settings.getBoolean(Constants.LISTENING_ACTIVE, false)){
+            mIsActive = (Switch) findViewById(R.id.isActive);
+            mIsActive.setChecked(true);
+        }
+    }
 }

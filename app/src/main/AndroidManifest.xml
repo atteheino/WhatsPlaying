@@ -25,10 +25,7 @@
             android:name=".MySongBroadcastReceiver"
             android:enabled="true"
             android:exported="true" />
-        <receiver
-            android:name=".MyMessengerBroadcastReceiver"
-            android:enabled="true"
-            android:exported="false"></receiver>
+
     </application>
 
 </manifest>

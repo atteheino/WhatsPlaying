@@ -1,6 +1,9 @@
 package fi.atteheino.whatsplaying;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -22,12 +25,26 @@ public class MainActivity extends AppCompatActivity {
     private TextView mArtist;
     private TextView mAlbum;
     private TextView mTrack;
-        CompoundButton.OnCheckedChangeListener mOnCheckedIsActiveListener = new CompoundButton.OnCheckedChangeListener() {
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getStringExtra(Constants.EXTRA_ARTIST) != null) {
+                mArtist.setText(intent.getStringExtra(Constants.EXTRA_ARTIST));
+            }
+            if(intent.getStringExtra(Constants.EXTRA_ALBUM) != null) {
+                mAlbum.setText(intent.getStringExtra(Constants.EXTRA_ALBUM));
+            }
+            if(intent.getStringExtra(Constants.EXTRA_TRACK) != null) {
+                mTrack.setText(intent.getStringExtra(Constants.EXTRA_TRACK));
+            }
+        }
+    };
+    private CompoundButton.OnCheckedChangeListener mOnCheckedIsActiveListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
             SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
             SharedPreferences.Editor editor = settings.edit();
-            if(isChecked){
+            if (isChecked) {
                 Intent intent = new Intent(getApplicationContext(), WhatsPlayingService.class);
                 startService(intent);
                 Log.i(TAG, "Starting Service");
@@ -85,19 +102,33 @@ public class MainActivity extends AppCompatActivity {
         mCloseButton = (Button) findViewById(R.id.stopButton);
         mCloseButton.setOnClickListener(mCloseButtonOnClickListener);
 
+        registerSongInfoBroadcastReceiver();
+
         Intent intent = new Intent(this, WhatsPlayingService.class);
         startService(intent);
         Log.i(TAG, "Starting the service...");
 
     }
 
+    private void registerSongInfoBroadcastReceiver() {
+        IntentFilter miF = new IntentFilter(Constants.TRACK_INFO);
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, miF);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
-        if(settings.getBoolean(Constants.LISTENING_ACTIVE, false)){
+        if (settings.getBoolean(Constants.LISTENING_ACTIVE, false)) {
             mIsActive = (Switch) findViewById(R.id.isActive);
             mIsActive.setChecked(true);
         }
+        registerSongInfoBroadcastReceiver();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
 }

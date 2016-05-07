@@ -4,10 +4,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.util.UUID;
 
+import fi.atteheino.whatsplaying.constants.Constants;
 import fi.atteheino.whatsplaying.service.WhatsPlayingService;
 
 public class MySongBroadcastReceiver extends BroadcastReceiver {
@@ -46,6 +48,14 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
         }
 
         mService.sendNotification(artist + " " + artistSpeak + " " + trackSpeak);
+
+        Intent trackInfoIntent = new Intent(Constants.TRACK_INFO);
+        trackInfoIntent.putExtra(Constants.EXTRA_ARTIST, artist);
+        trackInfoIntent.putExtra(Constants.EXTRA_ALBUM, album);
+        trackInfoIntent.putExtra(Constants.EXTRA_TRACK, track);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(trackInfoIntent);
+        Log.i(TAG, "Sent intent" + trackInfoIntent);
+
     }
 
 }

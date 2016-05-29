@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WhatsPlaying</string>
+    <string name="main_activity_close_btn">Sulje taustapalvelu</string>
+    <string name="main_activity_verbosity_header">Puheliaisuus</string>
+    <string name="notification_close">Sulje</string>
+    <string name="notification_header">WhatsPlaying</string>
+
+    <string-array name="verbosity_array">
+        <item>Puhelias</item>
+        <item>Normaali</item>
+        <item>Pelkistetty</item>
+    </string-array>
+</resources>

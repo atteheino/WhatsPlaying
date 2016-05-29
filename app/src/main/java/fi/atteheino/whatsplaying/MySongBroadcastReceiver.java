@@ -55,15 +55,13 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
             //Was the last song played less than 30 minutes ago?
             if(thirtyMinutesAgo.before(mPreviousSongTimestamp)){
                 queueAction = TextToSpeech.QUEUE_ADD;
-                String prevArtist = "";
+                String prevArtist = "That was " + mPreviousArtist;
                 String prevTrackSpeak = "";
                 switch (VERBOSITY){
                     case 1:
-                        prevArtist = mPreviousArtist;
                         prevTrackSpeak = mPreviousTrack;
                         break;
                     default:
-                        prevArtist = "That was " + mPreviousArtist;
                         prevTrackSpeak = "with track " + mPreviousTrack;
                 }
                 mTextToSpeech.speak(prevArtist, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());

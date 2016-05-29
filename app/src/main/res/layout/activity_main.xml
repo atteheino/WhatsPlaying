@@ -63,7 +63,7 @@
 
             <org.honorato.multistatetogglebutton.MultiStateToggleButton
                 android:id="@+id/verbosity"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/verbosityHeader"
                 android:layout_marginTop="10dip"
@@ -76,7 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/verbosity"
-                android:layout_marginTop="100dp"
+                android:layout_marginTop="50dp"
                 android:enabled="true"
                 android:text="@string/main_activity_close_btn" />
 

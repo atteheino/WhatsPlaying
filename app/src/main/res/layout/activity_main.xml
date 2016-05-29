@@ -1,74 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:mstb="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="fi.atteheino.whatsplaying.MainActivity">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/artist"
+
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/background_box"
-        android:elevation="2dp"
-        android:text="ARTIST"
-        android:textAppearance="?android:attr/textAppearanceLarge"/>
+        android:layout_height="wrap_content" >
 
-    <TextView
-        android:id="@+id/album"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/artist"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/background_box"
-        android:elevation="5dp"
-        android:text="ALBUM"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:mstb="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            tools:context="fi.atteheino.whatsplaying.MainActivity">
 
-    <TextView
-        android:id="@+id/track"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/album"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/background_box"
-        android:elevation="2dp"
-        android:text="TRACK"
-        android:textAppearance="?android:attr/textAppearanceLarge" />
+            <TextView
+                android:id="@+id/artist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/background_box"
+                android:elevation="2dp"
+                android:text="ARTIST"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
-    <org.honorato.multistatetogglebutton.MultiStateToggleButton
-        android:id="@+id/verbosity"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/track"
-        android:layout_marginTop="10dip"
-        mstb:mstbPrimaryColor="@color/gray"
-        mstb:mstbSecondaryColor="@color/blue"
-        mstb:values="@array/verbosity_array" />
+            <TextView
+                android:id="@+id/album"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/artist"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/background_box"
+                android:elevation="5dp"
+                android:text="ALBUM"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Button
-        android:id="@+id/stopButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/isActive"
-        android:layout_alignParentEnd="true"
-        android:enabled="true"
-        android:text="@string/main_activity_close_btn" />
+            <TextView
+                android:id="@+id/track"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/album"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/background_box"
+                android:elevation="2dp"
+                android:text="TRACK"
+                android:textAppearance="?android:attr/textAppearanceLarge" />
 
-    <Switch
-        android:id="@+id/isActive"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:checked="false"
-        android:enabled="true"
-        android:text="Speak out loud?" />
+            <TextView
+                android:id="@+id/verbosityHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/track"
+                android:layout_marginTop="10dp"
+                android:text="@string/main_activity_verbosity_header"
+                android:textAppearance="?android:attr/textAppearanceLarge"/>
 
+            <org.honorato.multistatetogglebutton.MultiStateToggleButton
+                android:id="@+id/verbosity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/verbosityHeader"
+                android:layout_marginTop="10dip"
+                mstb:mstbPrimaryColor="@color/gray"
+                mstb:mstbSecondaryColor="@color/blue"
+                mstb:values="@array/verbosity_array" />
 
-</RelativeLayout>
+            <Button
+                android:id="@+id/stopButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/verbosity"
+                android:layout_marginTop="100dp"
+                android:enabled="true"
+                android:text="@string/main_activity_close_btn" />
+
+            <Switch
+                android:id="@+id/isActive"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/stopButton"
+                android:layout_centerHorizontal="true"
+                android:checked="false"
+                android:enabled="true"
+                android:text="Speak out loud?" />
+
+        </RelativeLayout>
+    </ScrollView>
+</LinearLayout>

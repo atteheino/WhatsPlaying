@@ -41,6 +41,9 @@ public class WhatsPlayingService extends Service {
             if (intent.getAction().equals(Constants.CLOSE_SERVICE)) {
                 closeService();
             }
+            if (intent.getAction().equals(Constants.VERBOSITY_INTENT)) {
+                setVerbosityOfReceiver();
+            }
 
         }
     };
@@ -80,6 +83,7 @@ public class WhatsPlayingService extends Service {
         intentFilter.addAction(Constants.START_LISTENING_BROADCASTS);
         intentFilter.addAction(Constants.STOP_LISTENING_BROADCASTS);
         intentFilter.addAction(Constants.CLOSE_SERVICE);
+        intentFilter.addAction(Constants.VERBOSITY_INTENT);
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessengerReceiver, intentFilter);
         Log.i(TAG, "Messenger Intent Receiver registered");
     }
@@ -113,6 +117,13 @@ public class WhatsPlayingService extends Service {
         mNotificationManager.cancel(Constants.NOTIFICATION_ID);
     }
 
+    private void setVerbosityOfReceiver(){
+        if (mReceiver != null) {
+            SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+            mReceiver.setVerbosity(settings.getInt(Constants.VERBOSITY, 0));
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -132,6 +143,7 @@ public class WhatsPlayingService extends Service {
             registerMyMusicBroadcastReceiver();
         }
 
+        setVerbosityOfReceiver();
         registerMessengerIntentReceiver();
     }
 

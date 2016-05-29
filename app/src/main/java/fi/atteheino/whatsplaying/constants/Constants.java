@@ -10,6 +10,7 @@ public class Constants {
     public static final String CLOSE_SERVICE = "fi.atteheino.close_service";
     public static final String CLOSE_SERVICE_REQ = "fi.atteheino.close_service_req";
     public static final String TRACK_INFO = "fi.atteheino.track_info";
+    public static final String VERBOSITY_INTENT = "fi.atteheino.verbosity";
     //String Extras
     public static final String EXTRA_ARTIST = "fi.atteheino.extra.artist";
     public static final String EXTRA_ALBUM = "fi.atteheino.extra.album";

@@ -86,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences.Editor editor = settings.edit();
             editor.putInt(Constants.VERBOSITY, position);
             editor.apply();
+            createAndSendBroadcast(Constants.VERBOSITY_INTENT);
         }
     };
 
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     private void setVerbosityUI() {
         SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
         mVerbosityButton.setValue(settings.getInt(Constants.VERBOSITY, 0));
+        createAndSendBroadcast(Constants.VERBOSITY_INTENT);
     }
 
     @Override

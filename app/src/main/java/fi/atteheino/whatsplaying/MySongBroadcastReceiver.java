@@ -16,6 +16,7 @@ import fi.atteheino.whatsplaying.service.WhatsPlayingService;
 public class MySongBroadcastReceiver extends BroadcastReceiver {
     private final static String TAG = "MySongBroadcastReceiver";
     private final static long PAUSE_TIME = 500;
+    private int VERBOSITY = 0;
     private TextToSpeech mTextToSpeech;
     private WhatsPlayingService mService;
 
@@ -48,29 +49,56 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
 
 
         //Let's speak out the previous song title if available
-        if (mPreviousSongTimestamp != null) {
+        if (mPreviousSongTimestamp != null && VERBOSITY<2) {
             Calendar thirtyMinutesAgo = Calendar.getInstance();
             thirtyMinutesAgo.add(Calendar.MINUTE, -30);
             //Was the last song played less than 30 minutes ago?
             if(thirtyMinutesAgo.before(mPreviousSongTimestamp)){
                 queueAction = TextToSpeech.QUEUE_ADD;
-                String prevArtist = "That was " + mPreviousArtist;
-                String prevTrackSpeak = "with track " + mPreviousTrack;
+                String prevArtist = "";
+                String prevTrackSpeak = "";
+                switch (VERBOSITY){
+                    case 1:
+                        prevArtist = mPreviousArtist;
+                        prevTrackSpeak = mPreviousTrack;
+                        break;
+                    default:
+                        prevArtist = "That was " + mPreviousArtist;
+                        prevTrackSpeak = "with track " + mPreviousTrack;
+                }
                 mTextToSpeech.speak(prevArtist, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());
                 silence();
                 mTextToSpeech.speak(prevTrackSpeak, TextToSpeech.QUEUE_ADD,null,UUID.randomUUID().toString());
                 silence();
             }
         }
+        String artistSpeak = "";
+        String albumSpeak = "";
+        String trackSpeak = "";
         //Now the next song
-        String artistSpeak = "Next " + artist;
-        String albumSpeak = "from album " + album;
-        String trackSpeak = "track " + track;
+        switch (VERBOSITY){
+            case 1: // Normal
+                artistSpeak = artist;
+                albumSpeak = album;
+                trackSpeak = track;
+                break;
+            case 2: // Short
+                artistSpeak = artist;
+                trackSpeak = track;
+                break;
+            default: //Verbose
+                artistSpeak = "Next " + artist;
+                albumSpeak = "from album " + album;
+                trackSpeak = "track " + track;
+        }
+
         if (artist != null) {
             mTextToSpeech.speak(artistSpeak, queueAction, null, UUID.randomUUID().toString());
             silence();
-            mTextToSpeech.speak(albumSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
-            silence();
+            if(!albumSpeak.isEmpty()) {
+                mTextToSpeech.speak(albumSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
+                silence();
+            }
             mTextToSpeech.speak(trackSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
             //Store values
             mPreviousSongTimestamp = Calendar.getInstance();
@@ -92,6 +120,11 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
 
     private void silence() {
         mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
+    }
+
+    public void setVerbosity(int verbosity) {
+        VERBOSITY = verbosity;
+        Log.i(TAG, "Setting verbosity to:" + verbosity);
     }
 
 }

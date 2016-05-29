@@ -22,4 +22,5 @@ public class Constants {
             "fi.atteheino.whatsplaying.app.sharedpreferences";
 
     public static final String LISTENING_ACTIVE = "listening_active";
+    public static final String VERBOSITY = "verbosity";
 }

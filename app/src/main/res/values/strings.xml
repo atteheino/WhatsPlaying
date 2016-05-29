@@ -3,4 +3,10 @@
     <string name="notification_header">WhatsPlaying</string>
     <string name="notification_close">Close</string>
     <string name="main_activity_close_btn">Close  Background Service</string>
+
+    <string-array name="verbosity_array">
+        <item>Verbose</item>
+        <item>Normal</item>
+        <item>Simple</item>
+    </string-array>
 </resources>

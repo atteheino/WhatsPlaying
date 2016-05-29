@@ -7,6 +7,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
+import java.util.Calendar;
 import java.util.UUID;
 
 import fi.atteheino.whatsplaying.constants.Constants;
@@ -18,9 +19,15 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
     private TextToSpeech mTextToSpeech;
     private WhatsPlayingService mService;
 
+    private String mPreviousArtist;
+    private String mPreviousAlbum;
+    private String mPreviousTrack;
+    private Calendar mPreviousSongTimestamp;
+
     public MySongBroadcastReceiver() {
     }
-    public MySongBroadcastReceiver(WhatsPlayingService whatsPlayingService, TextToSpeech textToSpeech){
+
+    public MySongBroadcastReceiver(WhatsPlayingService whatsPlayingService, TextToSpeech textToSpeech) {
         this.mTextToSpeech = textToSpeech;
         this.mService = whatsPlayingService;
     }
@@ -28,6 +35,9 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        int queueAction = TextToSpeech.QUEUE_FLUSH;
+
+        // Receive Intent and break down data
         String action = intent.getAction();
         String cmd = intent.getStringExtra("command");
         Log.v(TAG, action + " / " + cmd);
@@ -36,15 +46,37 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
         String track = intent.getStringExtra("track");
         Log.v(TAG, artist + ":" + album + ":" + track);
 
-        String artistSpeak = artist;
+
+        //Let's speak out the previous song title if available
+        if (mPreviousSongTimestamp != null) {
+            Calendar thirtyMinutesAgo = Calendar.getInstance();
+            thirtyMinutesAgo.add(Calendar.MINUTE, -30);
+            //Was the last song played less than 30 minutes ago?
+            if(thirtyMinutesAgo.before(mPreviousSongTimestamp)){
+                queueAction = TextToSpeech.QUEUE_ADD;
+                String prevArtist = "That was " + mPreviousArtist;
+                String prevTrackSpeak = "with track " + mPreviousTrack;
+                mTextToSpeech.speak(prevArtist, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());
+                silence();
+                mTextToSpeech.speak(prevTrackSpeak, TextToSpeech.QUEUE_ADD,null,UUID.randomUUID().toString());
+                silence();
+            }
+        }
+        //Now the next song
+        String artistSpeak = "Next " + artist;
         String albumSpeak = "from album " + album;
         String trackSpeak = "track " + track;
-        if(artist != null) {
-            mTextToSpeech.speak(artistSpeak, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());
-            mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
+        if (artist != null) {
+            mTextToSpeech.speak(artistSpeak, queueAction, null, UUID.randomUUID().toString());
+            silence();
             mTextToSpeech.speak(albumSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
-            mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
+            silence();
             mTextToSpeech.speak(trackSpeak, TextToSpeech.QUEUE_ADD, null, UUID.randomUUID().toString());
+            //Store values
+            mPreviousSongTimestamp = Calendar.getInstance();
+            mPreviousArtist = artist;
+            mPreviousAlbum = album;
+            mPreviousTrack = track;
         }
 
         mService.sendNotification(artist + " " + artistSpeak + " " + trackSpeak);
@@ -56,6 +88,10 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
         LocalBroadcastManager.getInstance(context).sendBroadcast(trackInfoIntent);
         Log.i(TAG, "Sent intent" + trackInfoIntent);
 
+    }
+
+    private void silence() {
+        mTextToSpeech.playSilentUtterance(PAUSE_TIME, TextToSpeech.QUEUE_ADD, UUID.randomUUID().toString());
     }
 
 }

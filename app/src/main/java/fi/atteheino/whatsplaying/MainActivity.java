@@ -15,6 +15,9 @@ import android.widget.CompoundButton;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import org.honorato.multistatetogglebutton.MultiStateToggleButton;
+import org.honorato.multistatetogglebutton.ToggleButton;
+
 import fi.atteheino.whatsplaying.constants.Constants;
 import fi.atteheino.whatsplaying.service.WhatsPlayingService;
 
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+    private Button mCloseButton;
+    private MultiStateToggleButton mVerbosityButton;
     private CompoundButton.OnCheckedChangeListener mOnCheckedIsActiveListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -67,12 +72,22 @@ public class MainActivity extends AppCompatActivity {
             SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
             SharedPreferences.Editor editor = settings.edit();
             editor.putBoolean(Constants.LISTENING_ACTIVE, false);
+            editor.apply();
 
             setDefaultsForUI();
             createAndSendBroadcast(Constants.CLOSE_SERVICE);
         }
     };
-    private Button mCloseButton;
+    private ToggleButton.OnValueChangedListener mVerbosityButtonOnValueChangedListener = new ToggleButton.OnValueChangedListener() {
+        @Override
+        public void onValueChanged(int position) {
+            Log.d(TAG, "Verbosity is set to: " + getResources().getStringArray(R.array.verbosity_array)[position] );
+            SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putInt(Constants.VERBOSITY, position);
+            editor.apply();
+        }
+    };
 
     private void createAndSendBroadcast(String intentAction) {
         Intent intent = new Intent(intentAction);
@@ -85,6 +100,12 @@ public class MainActivity extends AppCompatActivity {
         mTrack.setText("TRACK");
         mAlbum.setText("ALBUM");
         mArtist.setText("ARTIST");
+        setVerbosityUI();
+    }
+
+    private void setVerbosityUI() {
+        SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+        mVerbosityButton.setValue(settings.getInt(Constants.VERBOSITY, 0));
     }
 
     @Override
@@ -101,6 +122,10 @@ public class MainActivity extends AppCompatActivity {
 
         mCloseButton = (Button) findViewById(R.id.stopButton);
         mCloseButton.setOnClickListener(mCloseButtonOnClickListener);
+
+        mVerbosityButton = (MultiStateToggleButton) this.findViewById(R.id.verbosity);
+        mVerbosityButton.setOnValueChangedListener(mVerbosityButtonOnValueChangedListener);
+        setVerbosityUI();
 
         registerSongInfoBroadcastReceiver();
 
@@ -123,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             mIsActive = (Switch) findViewById(R.id.isActive);
             mIsActive.setChecked(true);
         }
+        setVerbosityUI();
         registerSongInfoBroadcastReceiver();
     }
 

@@ -171,7 +171,7 @@ public class WhatsPlayingService extends Service {
 
         Notification notification = new Notification.Builder(this)
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setSmallIcon(R.drawable.ic_notification)
+                .setSmallIcon(R.drawable.ic_stat_ic_notification)
                 .setContentTitle(getString(R.string.notification_header))
                 .setContentText(infoText)
                 .setContentIntent(pendingHomeIntent)

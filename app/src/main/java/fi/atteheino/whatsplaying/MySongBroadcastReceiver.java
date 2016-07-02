@@ -49,7 +49,7 @@ public class MySongBroadcastReceiver extends BroadcastReceiver {
 
 
         //Let's speak out the previous song title if available
-        if (mPreviousSongTimestamp != null && VERBOSITY<2) {
+        if (mPreviousSongTimestamp != null && VERBOSITY<2 && mPreviousArtist != null && mPreviousTrack != null) {
             Calendar thirtyMinutesAgo = Calendar.getInstance();
             thirtyMinutesAgo.add(Calendar.MINUTE, -30);
             //Was the last song played less than 30 minutes ago?

@@ -9,6 +9,8 @@ import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -31,62 +33,57 @@ public class MainActivity extends AppCompatActivity {
     private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if(intent.getStringExtra(Constants.EXTRA_ARTIST) != null) {
-                mArtist.setText(intent.getStringExtra(Constants.EXTRA_ARTIST));
+            Log.i(TAG, "Received intent: " + intent);
+            if (intent.getAction().equals(Constants.INSTANCE.getTRACK_INFO())) {
+                if (intent.getStringExtra(Constants.INSTANCE.getEXTRA_ARTIST()) != null) {
+                    mArtist.setText(intent.getStringExtra(Constants.INSTANCE.getEXTRA_ARTIST()));
+                }
+                if (intent.getStringExtra(Constants.INSTANCE.getEXTRA_ALBUM()) != null) {
+                    mAlbum.setText(intent.getStringExtra(Constants.INSTANCE.getEXTRA_ALBUM()));
+                }
+                if (intent.getStringExtra(Constants.INSTANCE.getEXTRA_TRACK()) != null) {
+                    mTrack.setText(intent.getStringExtra(Constants.INSTANCE.getEXTRA_TRACK()));
+                }
             }
-            if(intent.getStringExtra(Constants.EXTRA_ALBUM) != null) {
-                mAlbum.setText(intent.getStringExtra(Constants.EXTRA_ALBUM));
-            }
-            if(intent.getStringExtra(Constants.EXTRA_TRACK) != null) {
-                mTrack.setText(intent.getStringExtra(Constants.EXTRA_TRACK));
+            if (intent.getAction().equals(Constants.INSTANCE.getCLOSE_SERVICE())){
+                mIsActive.setOnCheckedChangeListener(null);
+                mIsActive.setChecked(false);
+                mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
+                setDefaultsForUI();
             }
         }
     };
-    private Button mCloseButton;
+
     private MultiStateToggleButton mVerbosityButton;
     private CompoundButton.OnCheckedChangeListener mOnCheckedIsActiveListener = new CompoundButton.OnCheckedChangeListener() {
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+            SharedPreferences settings = getSharedPreferences(Constants.INSTANCE.getSHARED_PREFERENCES_FILE(), 0);
             SharedPreferences.Editor editor = settings.edit();
             if (isChecked) {
                 Intent intent = new Intent(getApplicationContext(), WhatsPlayingService.class);
                 startService(intent);
                 Log.i(TAG, "Starting Service");
-                editor.putBoolean(Constants.LISTENING_ACTIVE, true);
-                createAndSendBroadcast(Constants.START_LISTENING_BROADCASTS);
+                editor.putBoolean(Constants.INSTANCE.getLISTENING_ACTIVE(), true);
+                createAndSendBroadcast(Constants.INSTANCE.getSTART_LISTENING_BROADCASTS());
             } else {
-                editor.putBoolean(Constants.LISTENING_ACTIVE, false);
-                createAndSendBroadcast(Constants.STOP_LISTENING_BROADCASTS);
+                editor.putBoolean(Constants.INSTANCE.getLISTENING_ACTIVE(), false);
+                createAndSendBroadcast(Constants.INSTANCE.getSTOP_LISTENING_BROADCASTS());
                 setDefaultsForUI();
             }
             editor.apply();
         }
     };
-    Button.OnClickListener mCloseButtonOnClickListener = new Button.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            mIsActive.setOnCheckedChangeListener(null);
-            mIsActive.setChecked(false);
-            mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
-            SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putBoolean(Constants.LISTENING_ACTIVE, false);
-            editor.apply();
 
-            setDefaultsForUI();
-            createAndSendBroadcast(Constants.CLOSE_SERVICE);
-        }
-    };
     private ToggleButton.OnValueChangedListener mVerbosityButtonOnValueChangedListener = new ToggleButton.OnValueChangedListener() {
         @Override
         public void onValueChanged(int position) {
             Log.d(TAG, "Verbosity is set to: " + getResources().getStringArray(R.array.verbosity_array)[position] );
-            SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
+            SharedPreferences settings = getSharedPreferences(Constants.INSTANCE.getSHARED_PREFERENCES_FILE(), 0);
             SharedPreferences.Editor editor = settings.edit();
-            editor.putInt(Constants.VERBOSITY, position);
+            editor.putInt(Constants.INSTANCE.getVERBOSITY(), position);
             editor.apply();
-            createAndSendBroadcast(Constants.VERBOSITY_INTENT);
+            createAndSendBroadcast(Constants.INSTANCE.getVERBOSITY_INTENT());
         }
     };
 
@@ -105,9 +102,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setVerbosityUI() {
-        SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
-        mVerbosityButton.setValue(settings.getInt(Constants.VERBOSITY, 0));
-        createAndSendBroadcast(Constants.VERBOSITY_INTENT);
+        SharedPreferences settings = getSharedPreferences(Constants.INSTANCE.getSHARED_PREFERENCES_FILE(), 0);
+        mVerbosityButton.setValue(settings.getInt(Constants.INSTANCE.getVERBOSITY(), 0));
+        createAndSendBroadcast(Constants.INSTANCE.getVERBOSITY_INTENT());
     }
 
     @Override
@@ -122,9 +119,6 @@ public class MainActivity extends AppCompatActivity {
         mIsActive = (Switch) findViewById(R.id.isActive);
         mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
 
-        mCloseButton = (Button) findViewById(R.id.stopButton);
-        mCloseButton.setOnClickListener(mCloseButtonOnClickListener);
-
         mVerbosityButton = (MultiStateToggleButton) this.findViewById(R.id.verbosity);
         mVerbosityButton.setOnValueChangedListener(mVerbosityButtonOnValueChangedListener);
         setVerbosityUI();
@@ -138,15 +132,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void registerSongInfoBroadcastReceiver() {
-        IntentFilter miF = new IntentFilter(Constants.TRACK_INFO);
+        IntentFilter miF = new IntentFilter(Constants.INSTANCE.getTRACK_INFO());
+        miF.addAction(Constants.INSTANCE.getCLOSE_SERVICE());
         LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver, miF);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences settings = getSharedPreferences(Constants.SHARED_PREFERENCES_FILE, 0);
-        if (settings.getBoolean(Constants.LISTENING_ACTIVE, false)) {
+        SharedPreferences settings = getSharedPreferences(Constants.INSTANCE.getSHARED_PREFERENCES_FILE(), 0);
+        if (settings.getBoolean(Constants.INSTANCE.getLISTENING_ACTIVE(), false)) {
             mIsActive = (Switch) findViewById(R.id.isActive);
             mIsActive.setChecked(true);
         }
@@ -159,4 +154,41 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main_activity_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_about) {
+            Intent aboutIntent = new Intent(getApplicationContext(), About.class);
+            startActivity(aboutIntent);
+            return true;
+        }
+        if (id == R.id.action_close_service ) {
+            mIsActive.setOnCheckedChangeListener(null);
+            mIsActive.setChecked(false);
+            mIsActive.setOnCheckedChangeListener(mOnCheckedIsActiveListener);
+            SharedPreferences settings = getSharedPreferences(Constants.INSTANCE.getSHARED_PREFERENCES_FILE(), 0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putBoolean(Constants.INSTANCE.getLISTENING_ACTIVE(), false);
+            editor.apply();
+
+            setDefaultsForUI();
+            createAndSendBroadcast(Constants.INSTANCE.getCLOSE_SERVICE());
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+
 }

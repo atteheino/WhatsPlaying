@@ -11,4 +11,18 @@
         <item>Normaali</item>
         <item>Pelkistetty</item>
     </string-array>
+    <string name="is_active_text">Kerro mikä soi (aktivoi palvelu)</string>
+    <string name="about_body">
+        <![CDATA[Tämä sovellus kertoo sinulle mikä kappale soi laiteessasi parhaillaan.\n\n
+        Tein tämän sovelluksen vastaamaan omiin tarpeisiini esim lenkkeilyn tai pyöräilyn ohessa ja toivottavasti siitä on sinullekin iloa.
+        Kaikki palaute on tervetullutta.\n\n
+        Jotta WhatsPlaying saa tiedon Spotifyssä soivasta kappaleesta, laitteen lähetystila pitää aktivoida Spotifyssä:\n\n
+        (Avaa Sotify => Asetukset => Aktivoi: "Laitteen lähetystila: Anna muiden laitteen sovellusten nähdä mitä kuuntelet.")\n\n
+
+        Spotify on Spotify AB:n rekisteröity tuotemerkki.]]></string>
+    <string name="action_close_service">Sulje taustapalvelu</string>
+    <string name="menu_about">About</string>
+    <string name="title_activity_about">About</string>
+    <string name="spotify_hint"><![CDATA[Kurkista menu -> About saadaksesi Spotify yhteys toimimaan.]]></string>
+
 </resources>

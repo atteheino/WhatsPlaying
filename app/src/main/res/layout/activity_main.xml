@@ -71,24 +71,24 @@
                 mstb:mstbSecondaryColor="@color/blue"
                 mstb:values="@array/verbosity_array" />
 
-            <Button
-                android:id="@+id/stopButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/verbosity"
-                android:layout_marginTop="50dp"
-                android:enabled="true"
-                android:text="@string/main_activity_close_btn" />
-
             <Switch
                 android:id="@+id/isActive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/stopButton"
+                android:layout_below="@id/verbosity"
                 android:layout_centerHorizontal="true"
                 android:checked="false"
                 android:enabled="true"
-                android:text="Speak out loud?" />
+                android:text="@string/is_active_text"
+                android:layout_marginTop="20dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/isActive"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/spotify_hint"
+                android:id="@+id/spotify_hint" />
 
         </RelativeLayout>
     </ScrollView>
